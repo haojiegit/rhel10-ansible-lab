@@ -44,17 +44,21 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 
 ### Execution
 1. **Verify connectivity across all nodes:**
+```bash
 ansible all -m ping
-
+```
 2. **Deploy local BaseOS/AppStream package repositories:**
+```bash
 ansible-playbook setup_repo.yml
-
+```
 3. **Execute baseline configuration and web service deployment:**
+```bash
 ansible-playbook site.yml
-
+```
 4. **Verify deployment:** 
+```bash
 curl http://node1
-
+```
 ---
 
 ## 📜 Key Engineering Practices Demonstrated:
