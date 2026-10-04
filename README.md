@@ -33,6 +33,7 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 ├── setup_repo.yml       # Local DNF ISO repository deployment playbook
 └── .gitignore           # Git rule file excluding runtime artifacts and credentials
 
+```
 ---
 
 ## 🚀 Quick Start & Usage
