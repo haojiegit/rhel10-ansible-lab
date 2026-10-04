@@ -1,0 +1,46 @@
+---
+- name: Apply System Baseline Config
+  hosts: all
+  tasks:
+    - name: Ensure baseline packages are installed
+      ansible.builtin.dnf:
+        name:
+          - vim-enhanced
+          - tar
+          - chrony
+        state: present
+
+    - name: Ensure chronyd service is running and enabled
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+        enabled: true
+
+- name: Configure Web Server Stack
+  hosts: webservers
+  tasks:
+    - name: Install Apache HTTP Server
+      ansible.builtin.dnf:
+        name: httpd
+        state: present
+
+    - name: Create custom index page
+      ansible.builtin.copy:
+        content: "<h1>HPC Lab Managed Node 1 - Deployed via Ansible</h1>\n"
+        dest: /var/www/html/index.html
+        owner: apache
+        group: apache
+        mode: '0644'
+
+    - name: Start and enable httpd service
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Permit HTTP traffic through firewalld
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: true

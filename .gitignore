@@ -1,0 +1,20 @@
+# Ansible runtime files
+*.retry
+*.log
+.ansible/
+.cache/
+
+# Security & Credentials (NEVER commit private keys)
+*.pem
+*.key
+id_rsa
+id_ed25519
+vault_pass*
+.vault_pass
+
+# Editor & System junk
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

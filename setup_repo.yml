@@ -1,0 +1,36 @@
+---
+- name: Configure Local ISO Repository
+  hosts: webservers
+  tasks:
+    - name: Ensure mount directory exits
+      ansible.builtin.file:
+        path: /mnt/repo
+        state: directory
+        mode: '0755'
+
+    - name: Mount RHEL 10 ISO
+      ansible.posix.mount:
+        path: /mnt/repo
+        src: /dev/sr0
+        fstype: iso9660
+        opts: ro
+        state: mounted
+
+    - name: Create local DNF repository config
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/local.repo
+        content: |
+          [BaseOS]
+          name=BaseOS
+          baseurl=file:///mnt/repo/BaseOS
+          enabled=1
+          gpgcheck=0
+
+          [AppStream]
+          name=AppStream
+          baseurl=file:///mnt/repo/AppStream
+          enabled=1
+          gpgcheck=0
+        owner: root
+        group: root
+        mode: '0644'

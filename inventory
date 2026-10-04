@@ -1,0 +1,12 @@
+[control_node]
+control
+
+[webservers]
+node1
+
+[dbservers]
+node2
+
+[all_nodes:children]
+webservers
+dbservers
