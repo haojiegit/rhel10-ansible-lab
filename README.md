@@ -33,25 +33,37 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 ├── setup_repo.yml       # Local DNF ISO repository deployment playbook
 └── .gitignore           # Git rule file excluding runtime artifacts and credentials
 
-🚀 Quick Start & Usage
+---
 
-Prerequisites:
-    RHEL 10 managed nodes with SSH public key distribution completed.
-    Ansible installed on the control node.
+## 🚀 Quick Start & Usage
 
-Execution:
-    Verify connectivity across all nodes: ansible all -m ping
+### Prerequisites
+* RHEL 10 managed nodes with SSH public key distribution completed.
+* Ansible installed on the control node.
 
-    Deploy local BaseOS/AppStream package repositories: ansible-playbook setup_repo.yml
+### Execution
+1. **Verify connectivity across all nodes:**
+bash
+ansible all -m ping
 
-    Execute baseline configuration and web service deployment: ansible-playbook site.yml
+2. **Deploy local BaseOS/AppStream package repositories:**
+bash
+ansible-playbook setup_repo.yml
 
-    Verify deployment: curl http://node1
+3. **Execute baseline configuration and web service deployment:**
+bash
+ansible-playbook site.yml
 
-📜 Key Engineering Practices Demonstrated:
+4. **Verify deployment:** 
+bash
+curl http://node1
 
-    Idempotency: Playbooks ensure consistent system state across re-runs without unnecessary side effects or service interruptions.
+---
 
-    Modular Repository Design: Local ISO mounting strategy handling offline/air-gapped Enterprise Linux environments.
+## 📜 Key Engineering Practices Demonstrated:
 
-    Version Control Cleanliness: Strict exclusion of keys, temporary artifacts, and runtime cache files via .gitignore.
+* **Idempotency:** Playbooks ensure consistent system state across re-runs without unnecessary side effects or service interruptions.
+
+* **Modular Repository Design:** Local ISO mounting strategy handling offline/air-gapped Enterprise Linux environments.
+
+* **Version Control Cleanliness:** Strict exclusion of keys, temporary artifacts, and runtime cache files via .gitignore.
