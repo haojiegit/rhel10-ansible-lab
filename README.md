@@ -51,9 +51,14 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 ```text
 .
 ├── ansible.cfg          # Custom Ansible configuration (inventory path, privilege escalation)
+├── group_vars/          # Environment and host-group variable definitions
+│   ├── all.yml          # Global variables applied across all managed nodes
+│   └── webservers.yml   # Service-specific variables for the [webservers] group
 ├── inventory            # Static INI inventory defining node groups ([webservers], [dbservers])
 ├── site.yml             # Primary site orchestration playbook
 ├── setup_repo.yml       # Local DNF ISO repository deployment playbook
+├── templates/           # Dynamic Jinja2 configuration templates
+│   └── index.html.j2    # Dynamic HTML landing page incorporating system facts
 └── .gitignore           # Git rule file excluding runtime artifacts and credentials
 
 ```
@@ -85,6 +90,10 @@ curl http://node1
 ---
 
 ## 📜 Key Engineering Practices Demonstrated:
+
+* **Dynamic Configuration & Templating:** Decoupled playbook logic from variables using `group_vars/` and Jinja2 (`.j2`) templates powered by `ansible_facts` (FQDN, distribution, IP address).
+
+* **Event-Driven Handlers:** Integrated Ansible `handlers` triggered via `notify` to ensure services (e.g., Apache) only restart when underlying configuration files actually change.
 
 * **Idempotency:** Playbooks ensure consistent system state across re-runs without unnecessary side effects or service interruptions.
 
