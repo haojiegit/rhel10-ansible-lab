@@ -1,0 +1,6 @@
+---
+# Webserver group-specific variables
+http_port: 80
+web_server_package: "httpd"
+web_service_name: "httpd"
+site_title: "Automated RHEL 10 Web Node"

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ site_title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #cc0000; }
+        ul { line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Welcome to {{ ansible_facts['fqdn'] }}</h1>
+        <p>This web server was dynamically configured using <strong>Ansible Core</strong> and <strong>Jinja2 Templating</strong>.</p>
+        <hr>
+        <h3>System Details:</h3>
+        <ul>
+            <li><strong>Host OS:</strong> {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}</li>
+            <li><strong>IP Address:</strong> {{ ansible_facts['default_ipv4']['address'] }}</li>
+            <li><strong>Environment:</strong> {{ environment_stage }}</li>
+            <li><strong>Admin Contact:</strong> {{ sys_admin_email }}</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 ---
 - name: Apply System Baseline Config
   hosts: all
+  become: true
   tasks:
     - name: Ensure baseline packages are installed
       ansible.builtin.dnf:
@@ -18,23 +19,25 @@
 
 - name: Configure Web Server Stack
   hosts: webservers
+  become: true
   tasks:
     - name: Install Apache HTTP Server
       ansible.builtin.dnf:
-        name: httpd
+        name: "{{ web_server_package }}"
         state: present
 
-    - name: Create custom index page
-      ansible.builtin.copy:
-        content: "<h1>HPC Lab Managed Node 1 - Deployed via Ansible</h1>\n"
+    - name: Deploy dynamic index page from Jinja2 template
+      ansible.builtin.template:
+        src: templates/index.html.j2
         dest: /var/www/html/index.html
         owner: apache
         group: apache
         mode: '0644'
+      notify: Restart Apache Service
 
     - name: Start and enable httpd service
       ansible.builtin.service:
-        name: httpd
+        name: "{{ web_service_name }}"
         state: started
         enabled: true
 
@@ -44,3 +47,9 @@
         permanent: true
         state: enabled
         immediate: true
+
+  handlers:
+    - name: Restart Apache Service
+      ansible.builtin.service:
+        name: "{{ web_service_name }}"
+        state: restarted

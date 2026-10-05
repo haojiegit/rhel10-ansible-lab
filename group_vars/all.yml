@@ -1,0 +1,4 @@
+---
+# Global environment variables
+sys_admin_email: "admin@lab.local"
+environment_stage: "development"
