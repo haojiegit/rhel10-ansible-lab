@@ -2,54 +2,11 @@
 - name: Apply System Baseline Config
   hosts: all
   become: true
-  tasks:
-    - name: Ensure baseline packages are installed
-      ansible.builtin.dnf:
-        name:
-          - vim-enhanced
-          - tar
-          - chrony
-        state: present
+  roles:
+    - common
 
-    - name: Ensure chronyd service is running and enabled
-      ansible.builtin.service:
-        name: chronyd
-        state: started
-        enabled: true
-
-- name: Configure Web Server Stack
+- name: Deploy Web Server Stack
   hosts: webservers
   become: true
-  tasks:
-    - name: Install Apache HTTP Server
-      ansible.builtin.dnf:
-        name: "{{ web_server_package }}"
-        state: present
-
-    - name: Deploy dynamic index page from Jinja2 template
-      ansible.builtin.template:
-        src: templates/index.html.j2
-        dest: /var/www/html/index.html
-        owner: apache
-        group: apache
-        mode: '0644'
-      notify: Restart Apache Service
-
-    - name: Start and enable httpd service
-      ansible.builtin.service:
-        name: "{{ web_service_name }}"
-        state: started
-        enabled: true
-
-    - name: Permit HTTP traffic through firewalld
-      ansible.posix.firewalld:
-        service: http
-        permanent: true
-        state: enabled
-        immediate: true
-
-  handlers:
-    - name: Restart Apache Service
-      ansible.builtin.service:
-        name: "{{ web_service_name }}"
-        state: restarted
+  roles:
+    - webserver

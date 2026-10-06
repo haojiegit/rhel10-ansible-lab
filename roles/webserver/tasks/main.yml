@@ -1,0 +1,27 @@
+---
+- name: Install Apache HTTP Server
+  ansible.builtin.dnf:
+    name: "{{ web_server_package }}"
+    state: present
+
+- name: Deploy dynamic index page from Jinja2 template
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+    mode: '0644'
+  notify: Restart Apache Service
+
+- name: Start and enable httpd service
+  ansible.builtin.service:
+    name: "{{ web_service_name }}"
+    state: started
+    enabled: true
+
+- name: Permit HTTP traffic through firewalld
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: true

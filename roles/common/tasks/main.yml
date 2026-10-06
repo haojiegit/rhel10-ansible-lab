@@ -1,0 +1,14 @@
+---
+- name: Ensure baseline packages are installed
+  ansible.builtin.dnf:
+    name:
+      - vim-enhanced
+      - tar
+      - chrony
+    state: present
+
+- name: Ensure chronyd service is running and enabled
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true

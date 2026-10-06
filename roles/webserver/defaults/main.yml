@@ -1,0 +1,4 @@
+---
+web_server_package: "httpd"
+web_service_name: "httpd"
+site_title: "Automated RHEL 10 Web Node (Role-based)"
