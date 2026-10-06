@@ -36,29 +36,41 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 | Hostname | Role | IP Address / FQDN | OS | Services / Modules Managed |
 | :--- | :--- | :--- | :--- | :--- |
 | **`control`** | Ansible Control Node | `control.lab.local` | RHEL 10 | Ansible Core, OpenSSH, Git |
-| **`node1`** | Managed Web Server | `node1.lab.local` | RHEL 10 | Apache (`httpd`), `firewalld`, Local DNF Repo |
-| **`node2`** | Managed Database Node | `node2.lab.local` | RHEL 10 | Base System Config, Local DNF Repo |
+| **`node1`** | Managed Web Server | `node1.lab.local` | RHEL 10 | `common`, `webserver` (Apache `httpd`, `firewalld`, Jinja2 |
+| **`node2`** | Managed Database Node | `node2.lab.local` | RHEL 10 | common (`chronyd`, system utilities), Local DNF Repo |
 
 ### Infrastructure Highlights
 * **Virtualization:** Native KVM / `libvirt` managed via `virt-manager` and `virsh`.
 * **Security & Access:** Key-based SSH authentication (`ed25519`), passwordless `sudo` privileges for the `ansible` automation account.
-* **Package Management:** Custom local BaseOS and AppStream DNF repositories mounted via ISO image (`ansible.posix.mount` and `ansible.builtin.yum_repository`).
+* **Package Management:** Custom local BaseOS and AppStream DNF repositories mounted via ISO image (`setup_repo.yml`).
 
 ---
 
 ## 🛠️ Repository Structure
 
 ```text
+
 .
 ├── ansible.cfg          # Custom Ansible configuration (inventory path, privilege escalation)
-├── group_vars/          # Environment and host-group variable definitions
-│   ├── all.yml          # Global variables applied across all managed nodes
-│   └── webservers.yml   # Service-specific variables for the [webservers] group
+├── group_vars/          # Global and host-group variable overrides
+│   ├── all.yml          # Environment-wide variables
+│   └── webservers.yml   # Webserver group variable overrides
 ├── inventory            # Static INI inventory defining node groups ([webservers], [dbservers])
-├── site.yml             # Primary site orchestration playbook
+├── roles/               # Production-grade Ansible roles
+│   ├── common/          # Baseline configuration applied to all managed nodes
+│   │   └── tasks/
+│   │       └── main.yml
+│   └── webserver/       # Modular web application stack role
+│       ├── defaults/
+│       │   └── main.yml # Default role variable fallbacks
+│       ├── handlers/
+│       │   └── main.yml # Event-driven Apache restart handler
+│       ├── tasks/
+│       │   └── main.yml # Role task sequence
+│       └── templates/
+│           └── index.html.j2 # Dynamic Jinja2 web page template
 ├── setup_repo.yml       # Local DNF ISO repository deployment playbook
-├── templates/           # Dynamic Jinja2 configuration templates
-│   └── index.html.j2    # Dynamic HTML landing page incorporating system facts
+├── site.yml             # Master orchestration playbook executing roles across inventory
 └── .gitignore           # Git rule file excluding runtime artifacts and credentials
 
 ```
@@ -75,15 +87,15 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 ```bash
 ansible all -m ping
 ```
-2. **Deploy local BaseOS/AppStream package repositories:**
+2. **Bootstrap local BaseOS/AppStream package repositories:**
 ```bash
 ansible-playbook setup_repo.yml
 ```
-3. **Execute baseline configuration and web service deployment:**
+3. **Run master orchestration playbook across all roles:**
 ```bash
 ansible-playbook site.yml
 ```
-4. **Verify deployment:** 
+4. **Verify dynamic deployment:** 
 ```bash
 curl http://node1
 ```
@@ -91,12 +103,13 @@ curl http://node1
 
 ## 📜 Key Engineering Practices Demonstrated:
 
-* **Dynamic Configuration & Templating:** Decoupled playbook logic from variables using `group_vars/` and Jinja2 (`.j2`) templates powered by `ansible_facts` (FQDN, distribution, IP address).
+* **Modular Role Architecture:** Refactored monolithic playbooks into standardized Ansible roles (`common`, `webserver`), encapsulating tasks, variables, handlers, and templates into clean directory scopes.
 
-* **Event-Driven Handlers:** Integrated Ansible `handlers` triggered via `notify` to ensure services (e.g., Apache) only restart when underlying configuration files actually change.
+* **Variable Precedence & Decoupling:** Leveraged role `defaults/main.yml` alongside `group_vars/` to provide robust default configuration fallbaks while allowing clean environment-level overrides.
 
-* **Idempotency:** Playbooks ensure consistent system state across re-runs without unnecessary side effects or service interruptions.
+* **Implicit Template & Handler Scoping:** Automated task handling by utilizing Ansible's implicit lookup for templates (`roles/webserver/templates/`) and handlers (`roles/webserver/handlers/`).
 
-* **Modular Repository Design:** Local ISO mounting strategy handling offline/air-gapped Enterprise Linux environments.
+* **Idempotency & Even-Driven Execution:** Guranteed deterministic state management where services (e.g., `httpd`) are only restarted via `notify` when configuration templates change.
 
-* **Version Control Cleanliness:** Strict exclusion of keys, temporary artifacts, and runtime cache files via .gitignore.
+* **Air-Gapped Infrastructure Management:** Isolated repository management (`setup_repo.yml`) handling offline Enterprise Linux package installation via loop-mounted ISOs.
+
