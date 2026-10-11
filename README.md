@@ -51,9 +51,13 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 ```text
 
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml       # GitHub Actions pipeline for syntax checks & ansible-lint
 ├── ansible.cfg          # Custom Ansible configuration (inventory path, privilege escalation)
-├── group_vars/          # Global and host-group variable overrides
+├── group_vars/          # Global and host-group variable overrides & secrets
 │   ├── all.yml          # Environment-wide variables
+│   ├── secrets.yml      # Ansible Vault encrypted sensitive data (passwords, tokens)
 │   └── webservers.yml   # Webserver group variable overrides
 ├── inventory            # Static INI inventory defining node groups ([webservers], [dbservers])
 ├── roles/               # Production-grade Ansible roles
@@ -102,6 +106,10 @@ curl http://node1
 ---
 
 ## 📜 Key Engineering Practices Demonstrated:
+
+* **Automated CI/CD Validation:** Integrated GitHub Actions workflow executing automated syntax validation (`--syntax-check`) and static code analysis (`ansible-lint`) on every push and pull request.
+
+* **Enterprise Secrets Management:** Secured sensitive data at rest using `ansible-vault` encryption (`group_vars/secrets.yml`), allowing safe version control tracking without leaking credentials.
 
 * **Modular Role Architecture:** Refactored monolithic playbooks into standardized Ansible roles (`common`, `webserver`), encapsulating tasks, variables, handlers, and templates into clean directory scopes.
 
