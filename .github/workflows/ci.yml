@@ -3,9 +3,9 @@ name: Ansible CI
 # 1. TRIGGERS: When should this workflow run?
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
 
 # 2. JOBS: What work needs to be performed?
 jobs:

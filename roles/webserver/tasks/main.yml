@@ -1,7 +1,7 @@
 ---
 - name: Install Apache HTTP Server
   ansible.builtin.dnf:
-    name: "{{ web_server_package }}"
+    name: "{{ webserver_package }}"
     state: present
 
 - name: Deploy dynamic index page from Jinja2 template
@@ -15,7 +15,7 @@
 
 - name: Start and enable httpd service
   ansible.builtin.service:
-    name: "{{ web_service_name }}"
+    name: "{{ webserver_service_name }}"
     state: started
     enabled: true
 
