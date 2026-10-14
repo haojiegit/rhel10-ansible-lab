@@ -4,6 +4,7 @@
   become: true
   roles:
     - common
+    - motd
 
 - name: Deploy Web Server Stack
   hosts: webservers
