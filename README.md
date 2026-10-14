@@ -4,9 +4,9 @@
 [![KVM/libvirt](https://img.shields.io/badge/Hypervisor-KVM_%2F_libvirt-0055FF?style=flat-square&logo=linux&logoColor=white)](https://www.linux-kvm.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade, multi-node Linux lab deployed on native KVM/`libvirt` virtualized infrastructure, automated end-to-end using Ansible core. 
+An enterprise-grade, multi-node Linux lab deployed on native KVM/`libvirt` virtualized infrastructure, automated end-to-end using Ansible core, modular roles, Vault encryption, and automated CI pipelines.
 
-Designed to demonstrate production-ready configuration management, idempotent playbook design, local repository management, and Linux systems administration.
+Designed to demonstrate production-ready configuration management, modular infrastructure-as-code (IaC), event-driven handlers, Jinja2 templating, offline DNF repository bootstrapping, secrets encryption, and CI/CD validation.
 
 ---
 
@@ -35,9 +35,9 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 
 | Hostname | Role | IP Address / FQDN | OS | Services / Modules Managed |
 | :--- | :--- | :--- | :--- | :--- |
-| **`control`** | Ansible Control Node | `control.lab.local` | RHEL 10 | Ansible Core, OpenSSH, Git |
-| **`node1`** | Managed Web Server | `node1.lab.local` | RHEL 10 | `common`, `webserver` (Apache `httpd`, `firewalld`, Jinja2 |
-| **`node2`** | Managed Database Node | `node2.lab.local` | RHEL 10 | common (`chronyd`, system utilities), Local DNF Repo |
+| **`control`** | Ansible Control Node | `control.lab.local` | RHEL 10 | Ansible Core, OpenSSH, Git, Ansible Vault, Linting |
+| **`node1`** | Managed Web Server | `node1.lab.local` | RHEL 10 | `common`, `motd`, `webserver` (Apache `httpd`, `firewalld`, Jinja2 |
+| **`node2`** | Managed Database Node | `node2.lab.local` | RHEL 10 | `common`, `motd` (`chronyd`, system utilities, dynamic banner) |
 
 ### Infrastructure Highlights
 * **Virtualization:** Native KVM / `libvirt` managed via `virt-manager` and `virsh`.
@@ -64,6 +64,13 @@ The lab consists of three persistent Red Hat Enterprise Linux 10 virtual machine
 │   ├── common/          # Baseline configuration applied to all managed nodes
 │   │   └── tasks/
 │   │       └── main.yml
+│   ├── motd/            # Dynamic message of the day banner management role
+│   │   ├── defaults/
+│   │   ├── handlers/
+│   │   ├── tasks/
+│   │       └── main.yml
+│   │   └── templates/
+│   │       └── motd.j2
 │   └── webserver/       # Modular web application stack role
 │       ├── defaults/
 │       │   └── main.yml # Default role variable fallbacks
@@ -111,13 +118,11 @@ curl http://node1
 
 * **Enterprise Secrets Management:** Secured sensitive data at rest using `ansible-vault` encryption (`group_vars/secrets.yml`), allowing safe version control tracking without leaking credentials.
 
-* **Modular Role Architecture:** Refactored monolithic playbooks into standardized Ansible roles (`common`, `webserver`), encapsulating tasks, variables, handlers, and templates into clean directory scopes.
+* **Modular Role Architecture:** Refactored monolithic playbooks into standardized Ansible roles (`common`, `motd`, `webserver`), encapsulating tasks, variables, handlers, and templates into clean directory scopes.
 
 * **Variable Precedence & Decoupling:** Leveraged role `defaults/main.yml` alongside `group_vars/` to provide robust default configuration fallbaks while allowing clean environment-level overrides.
 
-* **Implicit Template & Handler Scoping:** Automated task handling by utilizing Ansible's implicit lookup for templates (`roles/webserver/templates/`) and handlers (`roles/webserver/handlers/`).
-
-* **Idempotency & Even-Driven Execution:** Guranteed deterministic state management where services (e.g., `httpd`) are only restarted via `notify` when configuration templates change.
+* **Idempotency & Event-Driven Execution:** Guranteed deterministic state management where services (e.g., `httpd`) are only restarted via `notify` when configuration templates change.
 
 * **Air-Gapped Infrastructure Management:** Isolated repository management (`setup_repo.yml`) handling offline Enterprise Linux package installation via loop-mounted ISOs.
 
