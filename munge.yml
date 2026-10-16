@@ -1,0 +1,50 @@
+---
+- name: Ensure munge is installed across all nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure munge is installed
+      ansible.builtin.package:
+        name: 
+          - munge
+          - munge-libs
+        state: present
+
+- name: Generate Munge key on control node
+  hosts: localhost
+  become: true
+  become_user: munge
+  tasks:
+    - name: Create munge key using mungekey
+      ansible.builtin.command: mungekey
+      args:
+        creates: /etc/munge/munge.key
+
+- name: Distribute and configure Munge key
+  hosts: slurm
+  become: true  
+  tasks:
+    - name: Read munge.key from controller locally
+      ansible.builtin.slurp:
+        src: /etc/munge/munge.key
+      delegate_to: localhost
+      register: munge_key_local
+
+        # - name: Decode munge key content
+        #ansible.builtin.set_fact:
+        # munge_key_decoded: "{{ munge_key_local['content'] | b64decode }}"
+
+    - name: Write munge.key to remote nodes 
+      ansible.builtin.copy:
+        content: "{{munge_key_local['content'] | b64decode}}"
+        dest: /etc/munge/munge.key
+        owner: munge
+        group: munge
+        mode: '0400'
+      notify: Restart munge service
+
+  handlers:
+    - name: Restart munge service
+      ansible.builtin.service:
+        name: munge
+        state: restarted
