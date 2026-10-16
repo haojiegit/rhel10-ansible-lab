@@ -10,3 +10,7 @@ node2
 [all_nodes:children]
 webservers
 dbservers
+
+[slurm]
+node1
+node2
