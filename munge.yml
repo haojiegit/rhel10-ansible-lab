@@ -48,3 +48,14 @@
       ansible.builtin.service:
         name: munge
         state: restarted
+
+- name: Ensure munge is enabled and started across all nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure munge is enabled and started
+      ansible.builtin.service:
+        name: munge
+        enabled: yes
+        state: started 
+
