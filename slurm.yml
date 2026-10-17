@@ -233,6 +233,7 @@
           ClusterName=hpc_lab
 
           SlurmctldHost=control.lab.local
+          SrunPortRange=60001-61000
 
           SlurmUser=slurm
           #ReturnToService=1
@@ -318,7 +319,6 @@
         permanent: true
         immediate: true
         state: enabled
-      when: inventory_hostname in groups['control_node']
 
     - name: Permit traffic in default zone on port 6818/tcp
       ansible.posix.firewalld:
