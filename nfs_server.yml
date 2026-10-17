@@ -1,0 +1,45 @@
+---
+- name: Deploy NFS on all nodes
+  hosts: control
+  become: true
+  tasks:
+    - name: install nfs-utils
+      ansible.builtin.dnf:
+        name: nfs-utils
+        state: present
+
+    - name: enable nfs service on the control node
+      ansible.builtin.service:
+        name: nfs-server.service
+        state: started
+        enabled: true
+
+    - name: allow nfs of firewall on the control node
+      ansible.posix.firewalld:
+        service: nfs
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: allow rpc-bind of firewall on the control node
+      ansible.posix.firewalld:
+        service: rpc-bind
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: allow mountd of firewall on the control node
+      ansible.posix.firewalld:
+        service: mountd
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: add export list to the /etc/exports on the control node
+      ansible.builtin.copy:
+        dest: "/etc/exports"
+        owner: "root"
+        group: "root"
+        mode: '0644'
+        content: |
+          /home     *(rw)
