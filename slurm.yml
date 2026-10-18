@@ -185,8 +185,8 @@
           SlurmctldHost=control.lab.local
           SrunPortRange=60001-61000
           SlurmUser=slurm
-          #ReturnToService=1
-          #SlurmdUser=root
+          ReturnToService=1
+          SlurmdUser=root
           AuthType=auth/munge
           CryptoType=crypto/munge
 
@@ -200,57 +200,6 @@
           SlurmdLogFile=/var/log/slurm/slurmd.log
 
           StateSaveLocation=/var/spool/slurmctld
-          ###SlurmdSpoolDir=/var/spool/slurmd
-
-          SwitchType=switch/none
-          MpiDefault=none
-
-          ProctrackType=proctrack/cgroup
-          TaskPlugin=task/cgroup
-
-          SelectType=select/cons_tres
-          SelectTypeParameters=CR_Core_Memory
-
-          SchedulerType=sched/backfill
-
-          AccountingStorageType=accounting_storage/none
-          JobAcctGatherType=jobacct_gather/cgroup
-
-          NodeName=node1 CPUs=2 RealMemory=1704 State=UNKNOWN
-          NodeName=node2 CPUs=2 RealMemory=1704 State=UNKNOWN
-
-          PartitionName=compute Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
-      when: inventory_hostname in groups['control_node']
-      notify: Restart slurmctld service
-    
-    - name: Create and distribute slurm.conf
-      ansible.builtin.copy:
-        dest: "/etc/slurm/slurm.conf"
-        owner: "root"
-        group: "root"
-        mode: '0644'
-        content: |
-          ClusterName=hpc_lab
-
-          SlurmctldHost=control.lab.local
-          SrunPortRange=60001-61000
-
-          SlurmUser=slurm
-          #ReturnToService=1
-          #SlurmdUser=root
-          AuthType=auth/munge
-          CryptoType=crypto/munge
-
-          SlurmctldPort=6817
-          SlurmdPort=6818
-
-          SlurmctldTimeout=300
-          SlurmdTimeout=300
-
-          SlurmctldLogFile=/var/log/slurm/slurmctld.log
-          SlurmdLogFile=/var/log/slurm/slurmd.log
-
-          ##StateSaveLocation=/var/spool/slurmctld
           SlurmdSpoolDir=/var/spool/slurmd
 
           SwitchType=switch/none
@@ -264,13 +213,67 @@
 
           SchedulerType=sched/backfill
 
-          AccountingStorageType=accounting_storage/none
+          AccountingStorageType=accounting_storage/slurmdbd
+          AccountingStorageHost=localhost
+          AccountingStoragePort=6819
           JobAcctGatherType=jobacct_gather/cgroup
 
           NodeName=node1 CPUs=2 RealMemory=1704 State=UNKNOWN
           NodeName=node2 CPUs=2 RealMemory=1704 State=UNKNOWN
 
           PartitionName=compute Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
+          PartitionName=debug Nodes=node[1-2] Default=NO MaxTime=00:15:00 State=UP Priority=100
+      when: inventory_hostname in groups['control_node']
+      notify: Restart slurmctld service
+    
+    - name: Create and distribute slurm.conf
+      ansible.builtin.copy:
+        dest: "/etc/slurm/slurm.conf"
+        owner: "root"
+        group: "root"
+        mode: '0644'
+        content: |
+          ClusterName=hpc_lab
+          SlurmctldHost=control.lab.local
+          SrunPortRange=60001-61000
+          SlurmUser=slurm
+          ReturnToService=1
+          SlurmdUser=root
+          AuthType=auth/munge
+          CryptoType=crypto/munge
+          SlurmctldPort=6817
+          SlurmdPort=6818
+
+          SlurmctldTimeout=300
+          SlurmdTimeout=300
+
+          SlurmctldLogFile=/var/log/slurm/slurmctld.log
+          SlurmdLogFile=/var/log/slurm/slurmd.log
+
+          StateSaveLocation=/var/spool/slurmctld
+          SlurmdSpoolDir=/var/spool/slurmd
+
+          SwitchType=switch/none
+          MpiDefault=none
+
+          ProctrackType=proctrack/cgroup
+          TaskPlugin=task/cgroup
+
+          SelectType=select/cons_tres
+          SelectTypeParameters=CR_Core_Memory
+
+          SchedulerType=sched/backfill
+
+          AccountingStorageType=accounting_storage/slurmdbd
+          AccountingStorageHost=localhost
+          AccountingStoragePort=6819
+          JobAcctGatherType=jobacct_gather/cgroup
+
+          NodeName=node1 CPUs=2 RealMemory=1704 State=UNKNOWN
+          NodeName=node2 CPUs=2 RealMemory=1704 State=UNKNOWN
+
+          PartitionName=compute Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
+          PartitionName=debug Nodes=node[1-2] Default=NO MaxTime=00:15:00 State=UP Priority=100
       when: inventory_hostname in groups['slurm']
       notify: Restart slurmd service
     
