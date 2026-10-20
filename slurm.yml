@@ -223,6 +223,15 @@
 
           PartitionName=compute Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
           PartitionName=debug Nodes=node[1-2] Default=NO MaxTime=00:15:00 State=UP Priority=100
+          # --- Priority / Fairshare Configuration ---
+          PriorityType=priority/multifactor
+          PriorityDecayHalfLife=7-00:00:00
+          PriorityWeightAge=1000
+          PriorityWeightFairShare=10000
+          PriorityWeightJobSize=1000
+          PriorityWeightPartition=1000
+          PriorityWeightQOS=0
+
       when: inventory_hostname in groups['control_node']
       notify: Restart slurmctld service
     
@@ -274,6 +283,15 @@
 
           PartitionName=compute Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
           PartitionName=debug Nodes=node[1-2] Default=NO MaxTime=00:15:00 State=UP Priority=100
+          # --- Priority / Fairshare Configuration ---
+          PriorityType=priority/multifactor
+          PriorityDecayHalfLife=7-00:00:00
+          PriorityWeightAge=1000
+          PriorityWeightFairShare=10000
+          PriorityWeightJobSize=1000
+          PriorityWeightPartition=1000
+          PriorityWeightQOS=0
+
       when: inventory_hostname in groups['slurm']
       notify: Restart slurmd service
     
